@@ -80,13 +80,13 @@ unsigned char** read_JPEG_file (char * filename)
 	// iterate over the pixels:
 	#ifdef TEST
 		for (unsigned int j = 0; j < cinfo.output_width; j++) {
-			int red =(int) pixel_rgb[i][j];
-			int green = (int) pixel_rgb[i][j + 1];
+			int red =(int) pixel_rgb[i][j*3];
+			int green = (int) pixel_rgb[i][j*3 + 1];
 			int blue = (int)  pixel_rgb[i][j + 2];
 			printf("%i %i %i\n", red, green, blue);
 		}
 	#endif
-		i++;
+		i += 1;
 	
 	}
 
