@@ -23,9 +23,10 @@ void my_error_exit (j_common_ptr cinfo)
 }
 
 
-int _read_JPEG_file (char * filename)
+unsigned char** read_JPEG_file (char * filename)
 {
 
+	unsigned char ** pixel_rgb;
 	struct jpeg_decompress_struct cinfo;
 	
 	struct my_error_mgr jerr;
@@ -61,26 +62,32 @@ int _read_JPEG_file (char * filename)
 	printf("%i\n",cinfo.output_width);
 	printf("%i\n",cinfo.output_height);
 	#endif
-	
+
 	row_stride = cinfo.output_width * cinfo.output_components;
+	
+	pixel_rgb = malloc( sizeof(unsigned char*) * cinfo.output_height + sizeof(unsigned char) * row_stride);
 	
 	buffer = (*cinfo.mem->alloc_sarray)
 		((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
 
+	int i = 0;
 	while (cinfo.output_scanline < cinfo.output_height) {
 	 // get the pointer to the row:
 		jpeg_read_scanlines(&cinfo, buffer ,1);
-		unsigned char* pixel_row = (unsigned char*)(buffer[0]);
+		pixel_rgb[i] = (unsigned char*)(buffer[0]);
+		// printf("%i",pixel_rgb[0][0]);
+		
 	// iterate over the pixels:
 	#ifdef TEST
-		for(int i = 0; i < cinfo.output_width; i++)
-		{
-			int red = pixel_row[i];
-			int green = pixel_row[i + 1];
-			int blue = pixel_row[i + 2];
+		for (unsigned int j = 0; j < cinfo.output_width; j++) {
+			int red =(int) pixel_rgb[i][j];
+			int green = (int) pixel_rgb[i][j + 1];
+			int blue = (int)  pixel_rgb[i][j + 2];
 			printf("%i %i %i\n", red, green, blue);
 		}
 	#endif
+		i++;
+	
 	}
 
 	jpeg_finish_decompress(&cinfo);
@@ -89,8 +96,7 @@ int _read_JPEG_file (char * filename)
 
 	fclose(infile);
 
-
-	return 1;
+	return pixel_rgb;
 }
 
 
